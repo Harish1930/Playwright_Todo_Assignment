@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test": "playwright test",
-    "test:headed": "playwright test --headed",
+    "test:headless": "playwright test",
     "test:ui": "playwright test --ui",
     "report": "playwright show-report",
     "typecheck": "tsc --noEmit"

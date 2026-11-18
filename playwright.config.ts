@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
   reporter: [
@@ -10,6 +10,7 @@ export default defineConfig({
     ['html', { open: 'never' }],
   ],
   use: {
+    headless: false,
     baseURL: 'https://demo.playwright.dev',
     trace: 'retain-on-failure',
   },

@@ -1,22 +1,28 @@
-import type { Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 export class TodoPage {
+  readonly body: Locator;
   readonly heading: Locator;
   readonly newTodoInput: Locator;
   readonly todoItems: Locator;
   readonly todoTitles: Locator;
-  readonly remainingCounter: Locator;
 
   constructor(readonly page: Page) {
+    this.body = page.locator('body');
     this.heading = page.getByRole('heading', { name: 'todos', exact: true });
     this.newTodoInput = page.getByPlaceholder('What needs to be done?');
     this.todoItems = page.getByTestId('todo-item');
     this.todoTitles = page.getByTestId('todo-title');
-    this.remainingCounter = page.getByTestId('todo-count');
   }
 
   async goto(): Promise<void> {
     await this.page.goto('/todomvc/');
+  }
+
+  async resetTodos(): Promise<void> {
+    await this.page.evaluate(() => localStorage.clear());
+    await this.goto();
+    await this.newTodoInput.waitFor({ state: 'visible' });
   }
 
   async addTodos(titles: readonly string[]): Promise<void> {
@@ -34,6 +40,16 @@ export class TodoPage {
 
   async setCompleted(title: string, completed: boolean): Promise<void> {
     await this.checkboxFor(title).setChecked(completed);
+  }
+
+  async expectTodoCount(state: 'all' | 'checked' | 'unchecked', expected: number): Promise<void> {
+    // Scope to todo rows so the "toggle all" checkbox is never counted.
+    // Counts apply to the current list, including the selected filter.
+    const checkboxes = state === 'all'
+      ? this.todoItems.getByRole('checkbox')
+      : this.todoItems.getByRole('checkbox', { checked: state === 'checked' });
+
+    await expect.soft(checkboxes, `The current list should contain ${expected} ${state} todos`).toHaveCount(expected);
   }
 
   async filterBy(filter: 'Active' | 'Completed' | 'All'): Promise<void> {

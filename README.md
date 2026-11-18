@@ -10,8 +10,15 @@ npx playwright install chromium
 npm test
 ```
 
-Run `npm run test:headed` to see the browser, or `npm run typecheck` to check TypeScript.
+Choose the browser mode when running tests:
+
+```sh
+npm run test:headless # Run without a visible browser (also the default for npm test)
+npm run test:headed   # Run with a visible browser
+```
+
+Run `npm run typecheck` to check TypeScript.
 
 After running `npm test`, use `npm run report` to open the HTML report generated in `playwright-report/`.
 
-`pages/TodoPage.ts` contains the page object. `fixtures/todo.fixture.ts` supplies it to each test using Playwright's isolated browser context, ensuring fresh local storage and an empty list. Each test sets up its own required todos. Assertions use descriptive messages and Playwright's automatic retries; there are no fixed waits.
+`pages/TodoPage.ts` contains the page object. `fixtures/todo.fixture.ts` supplies it using Playwright's isolated browser context. One test runs all seven scenarios in named `test.step` sections, sharing the todos through the workflow and resetting the list before whitespace validation. The setup verifies the default ARIA snapshot using `toMatchAriaSnapshot()`. Assertions use descriptive messages and Playwright's automatic retries; there are no fixed waits.
